@@ -30,7 +30,7 @@ import java.util.*;
  * unused macros.
  *
  * @author Gerwin Klein
- * @version JFlex 1.4.3, $Revision$, $Date$
+ * @version $Revision: 1.4.3 $, $Date: 2009/12/21 15:58:48 $
  */
 final public class Macros {
 

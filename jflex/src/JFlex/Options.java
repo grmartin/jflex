@@ -27,7 +27,7 @@ import java.io.File;
  * ant taks, gui, etc.
  * 
  * @author Gerwin Klein
- * @version JFlex 1.4.3, $Revision$, $Date$
+ * @version $Revision: 1.4.3 $, $Date: 2009/12/21 15:58:48 $
  */
 public class Options {
 
@@ -50,7 +50,13 @@ public class Options {
   /** don't run minimization algorithm if this is true */
   public static boolean no_minimize; 
   /** don't write backup files if this is true */
-  public static boolean no_backup; 
+  public static boolean no_backup;
+  /** use charAt function for accessing the zzBuffer */
+  public static boolean char_at;
+
+  /** use charAt function for accessing the zzBuffer and [] for zzBufferArray */
+  public static boolean sliceAndCharAt;
+
   /** default code generation method */
   public static int gen_method;
   /** If false, only error/warning output will be generated */

@@ -31,7 +31,7 @@ import JFlex.gui.MainFrame;
  * starting up the GUI if necessary, etc. 
  *
  * @author Gerwin Klein
- * @version JFlex 1.4.3, $Revision$, $Date$
+ * @version $Revision: 1.4.3 $, $Date: 2009/12/21 15:58:48 $
  */
 public class Main {
   
@@ -246,7 +246,17 @@ public class Main {
         Options.no_backup = true;
         continue;
       }
-      
+
+      if ( argv[i].equals("--charat") || argv[i].equals("-charat") ) { //$NON-NLS-1$ //$NON-NLS-2$
+        Options.char_at = true;
+        continue;
+      }
+
+      if ( argv[i].equals("--sliceandcharat") || argv[i].equals("-sliceandcharat") ) { //$NON-NLS-1$ //$NON-NLS-2$
+        Options.sliceAndCharAt = true;
+        continue;
+      }
+
       if ( argv[i].startsWith("-") ) { //$NON-NLS-1$
         Out.error(ErrorMessages.UNKNOWN_COMMANDLINE, argv[i]);
         printUsage();

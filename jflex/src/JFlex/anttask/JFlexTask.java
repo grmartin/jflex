@@ -33,7 +33,7 @@ import java.io.*;
  * JFlex task class
  *
  * @author Rafal Mantiuk
- * @version JFlex 1.4.3, $Revision$, $Date$
+ * @version $Revision: 1.4.3 $, $Date: 2009/12/21 15:58:48 $
  */
 public class JFlexTask extends Task {
   private File inputFile;
@@ -258,5 +258,9 @@ public class JFlexTask extends Task {
   
   public void setJLex(boolean b) {    
     Options.jlex = b;
+  }
+
+  public void setCharAt(boolean b) {
+    Options.char_at = b;
   }
 }

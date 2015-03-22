@@ -31,7 +31,7 @@ import java.text.*;
  * Table compression, String packing etc. is also done here.
  *
  * @author Gerwin Klein
- * @version JFlex 1.4.3, $Revision$, $Date$
+ * @version $Revision: 1.4.3 $, $Date: 2009/12/21 15:58:48 $
  */
 final public class Emitter {
     
@@ -357,13 +357,33 @@ final public class Emitter {
     println("");    
   }
   
+  private String zzBufferLAccess(String idx) {
+    if (Options.sliceAndCharAt) {
+      return "(zzBufferArrayL != null ? zzBufferArrayL[" + idx + "] : zzBufferL.charAt("+idx+"))";
+    }
+    if (Options.char_at) {
+      return "zzBufferL.charAt("+idx+")";
+    }
+    return "zzBufferL[" + idx + "]";
+  }
+
+  private String zzBufferLLength() {
+    if (Options.sliceAndCharAt) {
+      return "(zzBufferArrayL != null ? zzBufferArrayL.length : zzBufferL.length())";
+    }
+    if (Options.char_at) {
+      return "zzBufferL.length()";
+    }
+    return "zzBufferL.length";
+  }
+
   private void emitNoMatch() {
     println("            zzScanError(ZZ_NO_MATCH);");
   }
   
   private void emitNextInput() {
     println("          if (zzCurrentPosL < zzEndReadL)");
-    println("            zzInput = zzBufferL[zzCurrentPosL++];");
+    println("            zzInput = " + zzBufferLAccess("zzCurrentPosL++") + ";");
     println("          else if (zzAtEOF) {");
     println("            zzInput = YYEOF;");
     println("            break zzForAction;");
@@ -383,7 +403,7 @@ final public class Emitter {
     println("              break zzForAction;");  
     println("            }");
     println("            else {");
-    println("              zzInput = zzBufferL[zzCurrentPosL++];");
+    println("              zzInput = " + zzBufferLAccess("zzCurrentPosL++") + ";");
     println("            }");
     println("          }"); 
   }
@@ -760,6 +780,12 @@ final public class Emitter {
 
 
   private void emitClassCode() {
+    if ( scanner.eofCode != null ) {
+      println("  /** denotes if the user-EOF-code has already been executed */");
+      println("  private boolean zzEOFDone;");
+      println("");
+    }
+
     if ( scanner.classCode != null ) {
       println("  /* user code: */");
       println(scanner.classCode);
@@ -937,7 +963,7 @@ final public class Emitter {
       println("      boolean zzR = false;");
       println("      for (zzCurrentPosL = zzStartRead; zzCurrentPosL < zzMarkedPosL;");
       println("                                                             zzCurrentPosL++) {");
-      println("        switch (zzBufferL[zzCurrentPosL]) {");
+      println("        switch (" + zzBufferLAccess("zzCurrentPosL") + ") {");
       println("        case '\\u000B':"); 
       println("        case '\\u000C':"); 
       println("        case '\\u0085':");
@@ -979,7 +1005,7 @@ final public class Emitter {
         println("        // peek one character ahead if it is \\n (if we have counted one line too much)");
         println("        boolean zzPeek;");
         println("        if (zzMarkedPosL < zzEndReadL)");
-        println("          zzPeek = zzBufferL[zzMarkedPosL] == '\\n';");
+        println("          zzPeek = " + zzBufferLAccess("zzMarkedPosL") + " == '\\n';");
         println("        else if (zzAtEOF)");
         println("          zzPeek = false;");
         println("        else {");
@@ -990,7 +1016,7 @@ final public class Emitter {
         println("          if (eof) ");
         println("            zzPeek = false;");
         println("          else ");
-        println("            zzPeek = zzBufferL[zzMarkedPosL] == '\\n';");
+        println("            zzPeek = " +  zzBufferLAccess("zzMarkedPosL") + " == '\\n';");
         println("        }");
         println("        if (zzPeek) yyline--;");
         println("      }");
@@ -1002,7 +1028,7 @@ final public class Emitter {
       // if match was empty, last value of zzAtBOL can be used
       // zzStartRead is always >= 0
       println("      if (zzMarkedPosL > zzStartRead) {");
-      println("        switch (zzBufferL[zzMarkedPosL-1]) {");
+      println("        switch (" + zzBufferLAccess("zzMarkedPosL-1") + ") {");
       println("        case '\\n':");
       println("        case '\\u000B':"); 
       println("        case '\\u000C':"); 
@@ -1013,7 +1039,7 @@ final public class Emitter {
       println("          break;"); 
       println("        case '\\r': "); 
       println("          if (zzMarkedPosL < zzEndReadL)");
-      println("            zzAtBOL = zzBufferL[zzMarkedPosL] != '\\n';");
+      println("            zzAtBOL = " + zzBufferLAccess("zzMarkedPosL") + " != '\\n';");
       println("          else if (zzAtEOF)");
       println("            zzAtBOL = false;");
       println("          else {");
@@ -1024,7 +1050,7 @@ final public class Emitter {
       println("            if (eof) ");
       println("              zzAtBOL = false;");
       println("            else ");
-      println("              zzAtBOL = zzBufferL[zzMarkedPosL] != '\\n';");
+      println("              zzAtBOL = " + zzBufferLAccess("zzMarkedPosL") + " != '\\n';");
       println("          }");      
       println("          break;"); 
       println("        default:"); 
@@ -1190,11 +1216,11 @@ final public class Emitter {
         println("          // general lookahead, find correct zzMarkedPos");
         println("          { int zzFState = "+dfa.entryState[action.getEntryState()]+";");
         println("            int zzFPos = zzStartRead;");
-        println("            if (zzFin.length <= zzBufferL.length) { zzFin = new boolean[zzBufferL.length+1]; }");
+        println("            if (zzFin.length <= " + zzBufferLLength() + ") { zzFin = new boolean[" + zzBufferLLength() + "+1]; }");
         println("            boolean zzFinL[] = zzFin;");
         println("            while (zzFState != -1 && zzFPos < zzMarkedPos) {");
         println("              if ((zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } ");
-        println("              zzInput = zzBufferL[zzFPos++];");
+        println("              zzInput = " + zzBufferLAccess("zzFPos++") + ";");
         println("              zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];");
         println("            }");
         println("            if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } ");
@@ -1202,7 +1228,7 @@ final public class Emitter {
         println("            zzFState = "+dfa.entryState[action.getEntryState()+1]+";");
         println("            zzFPos = zzMarkedPos;");
         println("            while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {");
-        println("              zzInput = zzBufferL[--zzFPos];");
+        println("              zzInput = " + zzBufferLAccess("--zzFPos") + ";");
         println("              zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];");
         println("            };");
         println("            zzMarkedPos = zzFPos;");
